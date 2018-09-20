@@ -6,8 +6,15 @@ use CatalogManager\CatalogFieldBuilder as CatalogFieldBuilder;
 use CatalogManager\SQLQueryBuilder as SQLQueryBuilder;
 use CatalogManager\Toolkit as Toolkit;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Writer\Xls;
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
+
 class Export {
 
+
+    protected $strName;
     protected $strType;
     protected $strTable;
     protected $numLimit = 0;
@@ -42,31 +49,97 @@ class Export {
             }
         }
 
+        $this->strName = $arrSettings['name'];
         $this->strTable = $arrSettings['table'];
         $this->numLimit = $arrSettings['limit'];
         $this->numOffset = $arrSettings['offset'];
         $this->strType = $arrSettings['type'] ?: 'xlsx';
         $this->blnParser = $arrSettings['parser'] ? true : false;
         $this->blnIncludeHeader = $arrSettings['includeHeader'] ? true : false;
+
         $this->getEntities();
     }
 
 
     public function initialize() {
 
+        $numRows = 1;
+        $objUser = \BackendUser::getInstance();
+        $objSpreadsheet = new Spreadsheet();
+        $strFilename =  \StringUtil::generateAlias( $this->strName ) . '.' . $this->strType;
+
+        $objSpreadsheet->getProperties()
+            ->setTitle( $this->strName )
+            ->setCreator( $objUser->username )
+            ->setLastModifiedBy( $objUser->username );
+
+        $objSheet = $objSpreadsheet->getActiveSheet();
+
+        if ( $this->blnIncludeHeader ) {
+
+            $numIndex = 1;
+
+            foreach ( $this->arrHeader as $strTitel ) {
+
+                $objSheet->setCellValueByColumnAndRow( $numIndex, $numRows, $strTitel );
+                $numIndex++;
+            }
+
+            $numRows++;
+        }
+
+        foreach ( $this->arrEntities as $arrEntity ) {
+
+            $numIndex = 1;
+
+            foreach ( $this->arrHeader as $strFieldname => $strTitel ) {
+
+                $strValue = $arrEntity[ $strFieldname ];
+
+                if ( $strValue == null ) $strValue = '';
+
+                $objSheet->setCellValueByColumnAndRow( $numIndex, $numRows, $strValue );
+
+                $numIndex++;
+            }
+
+            $numRows++;
+        }
+
         switch ( $this->strType ) {
 
             case 'xls':
 
-                //
+                header('Content-Type: application/vnd.ms-excel');
+                header('Content-Disposition: attachment;filename="' . $strFilename . '"');
+                header('Cache-Control: max-age=0');
 
-                break;
+                $objXls = new Xls( $objSpreadsheet );
+                $objXls->save( 'php://output' );
+
+                exit;
 
             case 'xlsx':
 
-                //
+                header('Content-Type: application/vnd.ms-excel');
+                header('Content-Disposition: attachment;filename="' . $strFilename . '"');
+                header('Cache-Control: max-age=0');
 
-                break;
+                $objXls = new Xlsx( $objSpreadsheet );
+                $objXls->save( 'php://output' );
+
+                exit;
+
+            case 'csv':
+
+                header('Content-Type: text/csv');
+                header('Content-Disposition: attachment;filename="' . $strFilename . '"');
+                header('Cache-Control: max-age=0');
+
+                $objXls = new Csv( $objSpreadsheet );
+                $objXls->save( 'php://output' );
+
+                exit;
 
             default:
 
@@ -170,12 +243,9 @@ class Export {
             $this->arrEntities[] = $arrEntity;
         }
 
-        if ( $this->blnIncludeHeader ) {
+        foreach ( $arrFields as $strFieldname => $arrField ) {
 
-            foreach ( $arrFields as $strFieldname => $arrField ) {
-
-                $this->arrHeader[] = $arrField['_dcFormat']['label'][0] ?: $strFieldname;
-            }
+            $this->arrHeader[ $strFieldname ] = $arrField['_dcFormat']['label'][0] ?: $strFieldname;
         }
     }
 }
