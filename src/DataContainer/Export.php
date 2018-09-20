@@ -11,7 +11,7 @@ class Export {
 
     public function getTypes() {
 
-        return [ 'xls', 'xlsx' ];
+        return [ 'xls', 'xlsx', 'csv' ];
     }
 
 
