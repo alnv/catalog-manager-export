@@ -1,0 +1,53 @@
+{
+  "name": "alnv/catalog-manager-export",
+  "type": "contao-bundle",
+  "license": "proprietary",
+  "description": "Catalog Manager Excel Export.",
+  "keywords": [ "excel", "catalog", "manager", "export" ],
+  "authors": [
+    {
+      "name": "Alexander Naumov",
+      "homepage": "https://www.alexandernaumov.de",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/alnv/catalog-manager-export/issues",
+    "wiki": "https://catalog-manager.alexandernaumov.de/dokumentation.html"
+  },
+  "autoload": {
+    "psr-4": {
+      "CatalogManager\\ExportBundle\\": "src/"
+    },
+    "classmap": [
+
+      "src/Resources/contao/"
+    ],
+    "exclude-from-classmap": [
+
+      "src/Resources/contao/config/",
+      "src/Resources/contao/dca/",
+      "src/Resources/contao/languages/",
+      "src/Resources/contao/templates/"
+    ]
+  },
+  "require": {
+    "php": "^7.1",
+    "symfony/framework-bundle": "3.4.* || 4.1.*",
+    "contao/core-bundle": "^4.4"
+  },
+  "config": {
+    "preferred-install": "dist"
+  },
+  "replace": {
+    "contao-legacy/catalog-manager-export": "self.version"
+  },
+  "extra": {
+    "contao": {
+      "sources": {
+        "": "system/modules/catalog-manager-export"
+      }
+    },
+    "contao-manager-plugin": "CatalogManager\\ExportBundle\\ContaoManager\\Plugin"
+  }
+}
