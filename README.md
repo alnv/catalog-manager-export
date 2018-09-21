@@ -22,4 +22,4 @@ Unterstütze Formate:
 ![](https://catalog-manager.alexandernaumov.de/files/air-theme/media/screenshots/export/screenshot-4.png)
 
 **Exportieren**
-![](https://catalog-manager.alexandernaumov.de/files/air-theme/media/screenshots/export/screenshot-5.png)
+![](https://catalog-manager.alexandernaumov.de/files/air-theme/media/screenshots/export/screenshot-51.png)
