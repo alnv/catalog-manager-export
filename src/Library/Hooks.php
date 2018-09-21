@@ -26,10 +26,10 @@ class Hooks {
 
                     'export' => [
 
-                        'icon' => 'header.svg',
-                        'label' => [ 'Export', '' ], // @todo
+                        'icon' => 'tablewizard.svg',
                         'attributes' => 'onclick="Backend.getScrollOffset()"',
-                        'href' => 'table=tl_catalog_export&destination=' . $strName
+                        'href' => 'table=tl_catalog_export&destination=' . $strName,
+                        'label' => &$GLOBALS['TL_LANG']['MOD']['catalog-manager-export']
                     ]
                 ]);
             }
@@ -39,9 +39,33 @@ class Hooks {
 
     public function modifyBackendModule( &$arrModule, $arrCatalog ) {
 
-        if ( $arrCatalog['useExport'] ) {
+        if ( $arrCatalog['useExport'] || $this->exportUsedInChildrenTables( $arrCatalog['cTables'] ) ) {
 
             $arrModule['tables'][] = 'tl_catalog_export';
         }
+    }
+
+
+    protected function exportUsedInChildrenTables( $arrTables ) {
+
+        if ( empty( $arrTables ) ) {
+
+            return false;
+        }
+
+        foreach ( $arrTables as $strTable ) {
+
+            if ( $GLOBALS['TL_CATALOG_MANAGER']['CATALOG_EXTENSIONS'][ $strTable ]['useExport'] ) {
+
+                return true;
+            }
+
+            if ( !empty( $GLOBALS['TL_CATALOG_MANAGER']['CATALOG_EXTENSIONS'][ $strTable ]['cTables'] ) ) {
+
+                return $this->exportUsedInChildrenTables( $GLOBALS['TL_CATALOG_MANAGER']['CATALOG_EXTENSIONS'][ $strTable ]['cTables'] );
+            }
+        }
+
+        return false;
     }
 }
