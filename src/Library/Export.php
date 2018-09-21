@@ -50,9 +50,9 @@ class Export {
         }
 
         $this->strName = $arrSettings['name'];
-        $this->strTable = $arrSettings['table'];
         $this->numLimit = $arrSettings['limit'];
         $this->numOffset = $arrSettings['offset'];
+        $this->strTable = $arrSettings['destination'];
         $this->strType = $arrSettings['type'] ?: 'xlsx';
         $this->blnParser = $arrSettings['parser'] ? true : false;
         $this->blnIncludeHeader = $arrSettings['includeHeader'] ? true : false;
@@ -106,14 +106,14 @@ class Export {
             $numRows++;
         }
 
+        header('Content-Disposition: attachment;filename="' . $strFilename . '"');
+        header('Cache-Control: max-age=0');
+
         switch ( $this->strType ) {
 
             case 'xls':
 
                 header('Content-Type: application/vnd.ms-excel');
-                header('Content-Disposition: attachment;filename="' . $strFilename . '"');
-                header('Cache-Control: max-age=0');
-
                 $objXls = new Xls( $objSpreadsheet );
                 $objXls->save( 'php://output' );
 
@@ -122,9 +122,6 @@ class Export {
             case 'xlsx':
 
                 header('Content-Type: application/vnd.ms-excel');
-                header('Content-Disposition: attachment;filename="' . $strFilename . '"');
-                header('Cache-Control: max-age=0');
-
                 $objXls = new Xlsx( $objSpreadsheet );
                 $objXls->save( 'php://output' );
 
@@ -133,19 +130,10 @@ class Export {
             case 'csv':
 
                 header('Content-Type: text/csv');
-                header('Content-Disposition: attachment;filename="' . $strFilename . '"');
-                header('Cache-Control: max-age=0');
-
                 $objXls = new Csv( $objSpreadsheet );
                 $objXls->save( 'php://output' );
 
                 exit;
-
-            default:
-
-                \System::log( 'Not supported "%s" type!', __METHOD__, TL_ERROR );
-
-                break;
         }
     }
 
