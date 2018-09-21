@@ -17,7 +17,8 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
 
             'keys' => [
 
-                'id' => 'primary'
+                'id' => 'primary',
+                'destination' => 'index'
             ]
         ]
     ],
@@ -26,23 +27,20 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
 
         'sorting' => [
 
-            'mode' => 0,
+            'mode' => 2,
+            'flag' => 1,
+            'fields' => ['name'],
+            'panelLayout' => 'filter;sort,search,limit',
+            'filter' => [ [ 'destination=?', \Input::get('destination') ] ]
         ],
 
         'label' => [
 
             'showColumns' => true,
-            'fields' => [ 'type', 'name' ]
+            'fields' => [ 'name', 'type' ]
         ],
 
         'operations' => [
-
-            'export' => [
-
-                'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['export'],
-                'href' => 'call=export',
-                'icon' => 'edit.gif'
-            ],
 
             'edit' => [
 
@@ -50,6 +48,7 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
                 'href' => 'act=edit',
                 'icon' => 'header.gif'
             ],
+
 
             'delete' => [
 
@@ -64,6 +63,13 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
                 'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['show'],
                 'href' => 'act=show',
                 'icon' => 'show.gif'
+            ],
+
+            'export' => [
+
+                'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['export'],
+                'href' => 'call=export',
+                'icon' => 'tablewizard.gif'
             ]
         ],
 
@@ -81,7 +87,7 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
 
     'palettes' => [
 
-        'default' => 'type,name,limit,offset,table,match,order,includeHeader,parser',
+        'default' => 'type,name,limit,offset,destination,match,order,includeHeader,parser',
     ],
 
     'fields' => [
@@ -108,6 +114,7 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
                 'maxlength' => 128
             ],
 
+            'search' => true,
             'exclude' => true,
             'sql' => "varchar(128) NOT NULL default ''"
         ],
@@ -128,7 +135,9 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
             ],
 
             'options_callback' => [ 'export.datacontainer.export', 'getTypes' ],
+            'reference' => &$GLOBALS['TL_LANG']['tl_catalog_export']['reference']['type'],
 
+            'filter' => true,
             'exclude' => true,
             'sql' => "varchar(12) NOT NULL default ''"
         ],
@@ -161,9 +170,9 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
             'sql' => "char(1) NOT NULL default ''"
         ],
 
-        'table' => [
+        'destination' => [
 
-            'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['table'],
+            'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['destination'],
             'inputType' => 'text',
 
             'eval' => [
