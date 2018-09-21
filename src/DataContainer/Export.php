@@ -82,7 +82,7 @@ class Export {
             return null;
         }
 
-        $objDatabase->prepare("UPDATE tl_catalog_export SET `table` = ? WHERE id = ?")->execute( $strTable, $strId );
+        $objDatabase->prepare("UPDATE tl_catalog_export SET `destination` = ? WHERE id = ?")->execute( $strTable, $strId );
     }
 
 
