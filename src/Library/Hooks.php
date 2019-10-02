@@ -23,9 +23,7 @@ class Hooks {
             if ( $GLOBALS['TL_CATALOG_MANAGER']['CATALOG_EXTENSIONS'][ $strName ]['useExport'] ) {
 
                 array_insert( $GLOBALS['TL_DCA'][ $strName ]['list']['global_operations'], 0, [
-
                     'export' => [
-
                         'icon' => 'tablewizard.svg',
                         'attributes' => 'onclick="Backend.getScrollOffset()"',
                         'href' => 'table=tl_catalog_export&destination=' . $strName,

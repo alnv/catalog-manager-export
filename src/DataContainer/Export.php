@@ -9,6 +9,12 @@ use CatalogManager\Toolkit as Toolkit;
 class Export {
 
 
+    public function generateBackLink( $strHref, $strLabel, $strTitle, $strClass, $strIcon, $strTable ) {
+
+        return '<a href="/contao?do='.\Input::get('do').'&table='. \Input::get('destination') . '&id=' . \Input::get('id') .'&rt='. REQUEST_TOKEN . '" class="'. $strClass .'" title="" '. $strIcon .' onclick="Backend.getScrollOffset()">'. $strLabel .'</a>';
+    }
+
+
     public function getTypes() {
 
         return [ 'xls', 'xlsx', 'csv' ];
@@ -27,7 +33,10 @@ class Export {
         $objDatabase = \Database::getInstance();
         $arrForbiddenTypes = [ 'upload', 'textarea' ];
 
-        if ( !$strTable ) return $arrReturn;
+        if ( !$strTable ) {
+
+            return $arrReturn;
+        }
 
         $objCatalogFieldBuilder = new CatalogFieldBuilder();
         $objCatalogFieldBuilder->initialize( $strTable );
@@ -51,7 +60,7 @@ class Export {
         $arrReturn = [];
         $objDatabase = \Database::getInstance();
         $objModule = $objDatabase->prepare( sprintf( 'SELECT * FROM %s WHERE id = ?', $objWidget->strTable ) )->limit(1)->execute( $objWidget->currentRecord );
-        $arrFields = $this->getFields( null, $objModule->table );
+        $arrFields = $this->getFields( null, $objModule->destination );
 
         if ( is_array( $arrFields ) && !empty( $arrFields ) ) {
 

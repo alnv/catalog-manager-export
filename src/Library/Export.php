@@ -11,6 +11,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Writer\Xls;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 
+
 class Export {
 
 
@@ -34,7 +35,7 @@ class Export {
 
         if ( isset( $arrMatch['query'] ) ) {
 
-            $this->arrQuery = $arrMatch['query'];
+            $this->arrQuery = Toolkit::parseQueries( $arrMatch['query'] );
         }
 
         if ( is_array($arrOrders ) && !empty( $arrOrders ) ) {
@@ -225,7 +226,18 @@ class Export {
 
             if ( $this->blnParser ) {
 
-                $arrEntity = Toolkit::parseCatalogValues( $arrEntity, $arrFields, true );
+                if ( !Toolkit::isCoreTable( $this->strTable ) ) {
+
+                    $arrEntity = Toolkit::parseCatalogValues( $arrEntity, $arrFields, true );
+                }
+
+                else {
+
+                    foreach ( $arrEntity as $strFieldname => $varValue ) {
+
+                        $arrEntity[ $strFieldname ] = $this->parseField( $varValue, $strFieldname, $arrEntity );
+                    }
+                }
             }
 
             $this->arrEntities[] = $arrEntity;
@@ -235,5 +247,64 @@ class Export {
 
             $this->arrHeader[ $strFieldname ] = $arrField['_dcFormat']['label'][0] ?: $strFieldname;
         }
+    }
+
+
+    protected function parseField( $varValue, $strField, $arrValues ) {
+
+        if ( $varValue === '' || $varValue === null ) {
+
+            return $varValue;
+        }
+
+        $arrField = \Widget::getAttributesFromDca( $GLOBALS['TL_DCA'][ $this->strTable ]['fields'][ $strField ], $strField, $varValue, $strField, $this->strTable );
+
+        if ( !isset( $arrField['type'] ) ) {
+
+            return $varValue;
+        }
+
+        switch ( $arrField['type'] ) {
+
+            case 'text':
+
+                return $arrField['value'];
+
+                break;
+
+            case 'checkbox':
+            case 'select':
+            case 'radio':
+
+                $varValue = !is_array( $arrField['value'] ) ? [ $arrField['value'] ] : $arrField['value'];
+                $varValue = $this->getSelectedOptions( $varValue, $arrField['options'] );
+
+                return is_array( $varValue ) ? implode( ', ', array_map(function ($arrValue){return $arrValue['label'];},$varValue) ) : $varValue;
+
+                break;
+        }
+
+        return $arrField['value'];
+    }
+
+
+    protected function getSelectedOptions( $arrValues, $arrOptions ) {
+
+        $arrReturn = [];
+
+        if ( !is_array( $arrOptions ) || !is_array( $arrValues ) ) {
+
+            return [];
+        }
+
+        foreach ( $arrOptions as $arrValue ) {
+
+            if ( in_array( $arrValue['value'], $arrValues ) ) {
+
+                $arrReturn[] = $arrValue;
+            }
+        }
+
+        return $arrReturn;
     }
 }

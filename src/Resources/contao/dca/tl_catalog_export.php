@@ -46,7 +46,7 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
             ],
             'export' => [
                 'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['export'],
-                'href' => 'call=export',
+                'href' => 'call=export&pid=' . \Input::get('id'),
                 'icon' => 'tablewizard.gif'
             ]
         ],
@@ -56,6 +56,13 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
                 'href' => 'act=select',
                 'class' => 'header_edit_all',
                 'attributes' => 'onclick="Backend.getScrollOffset()" accesskey="e"'
+            ],
+            'back' => [
+                'icon' => 'back.svg',
+                'attributes' => '',
+                'href' => '',
+                'label' => &$GLOBALS['TL_LANG']['MSC']['backBT'],
+                'button_callback' => ['CatalogManager\ExportBundle\DataContainer\Export', 'generateBackLink'],
             ]
         ]
     ],
