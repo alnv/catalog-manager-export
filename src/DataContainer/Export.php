@@ -11,7 +11,7 @@ class Export {
 
     public function generateBackLink( $strHref, $strLabel, $strTitle, $strClass, $strIcon, $strTable ) {
 
-        return '<a href="/contao?do='.\Input::get('do').'&table='. \Input::get('destination') . '&id=' . \Input::get('id') .'&rt='. REQUEST_TOKEN . '" class="'. $strClass .'" title="" '. $strIcon .' onclick="Backend.getScrollOffset()">'. $strLabel .'</a>';
+        return '<a href="/contao?do='.\Input::get('do') . '&rt='. REQUEST_TOKEN . '" class="'. $strClass .'" title="" '. $strIcon .' onclick="Backend.getScrollOffset()">'. $strLabel .'</a>';
     }
 
 
