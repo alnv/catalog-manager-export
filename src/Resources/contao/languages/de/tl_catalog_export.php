@@ -13,6 +13,7 @@ $GLOBALS['TL_LANG']['tl_catalog_export']['destination'] = [ 'Tabelle', 'Dieser W
 $GLOBALS['TL_LANG']['tl_catalog_export']['order'] = [ 'Reihenfolge', 'Hier können Sie eine Reihenfolge festlegen.' ];
 $GLOBALS['TL_LANG']['tl_catalog_export']['parser'] = [ 'Werte formatieren', 'Hier können Sie die Werte formatieren.' ];
 $GLOBALS['TL_LANG']['tl_catalog_export']['includeHeader'] = [ 'Kopfzeile hinzufügen', 'Hier können Sie die Kopfzeile hinzufügen.' ];
+$GLOBALS['TL_LANG']['tl_catalog_export']['columns'] = [ 'Spalten exportieren', 'Hier können Sie eingrenzen, welche Spalten exportiert werden sollen.' ];
 $GLOBALS['TL_LANG']['tl_catalog_export']['limit'] = [ 'Limit', 'Hier können Sie die Datensätze beschränken. Geben Sie 0 ein, um alle anzuzeigen.' ];
 $GLOBALS['TL_LANG']['tl_catalog_export']['offset'] = [ 'Überspringen', 'Hier legen Sie fest, wie viele Elemente übersprungen werden sollen.' ];
 

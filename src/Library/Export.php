@@ -23,6 +23,7 @@ class Export {
     protected $arrQuery = [];
     protected $arrOrder = [];
     protected $arrHeader = [];
+    protected $arrColumns = [];
     protected $arrEntities = [];
     protected $blnParser = false;
     protected $blnIncludeHeader = false;
@@ -57,6 +58,7 @@ class Export {
         $this->strType = $arrSettings['type'] ?: 'xlsx';
         $this->blnParser = $arrSettings['parser'] ? true : false;
         $this->blnIncludeHeader = $arrSettings['includeHeader'] ? true : false;
+        $this->arrColumns = \StringUtil::deserialize( $arrSettings['columns'], true );
 
         $this->getEntities();
     }
@@ -80,9 +82,9 @@ class Export {
 
             $numIndex = 1;
 
-            foreach ( $this->arrHeader as $strTitel ) {
+            foreach ( $this->arrHeader as $strTitle ) {
 
-                $objSheet->setCellValueByColumnAndRow( $numIndex, $numRows, $strTitel );
+                $objSheet->setCellValueByColumnAndRow( $numIndex, $numRows, $strTitle );
                 $numIndex++;
             }
 
@@ -93,14 +95,13 @@ class Export {
 
             $numIndex = 1;
 
-            foreach ( $this->arrHeader as $strFieldname => $strTitel ) {
+            foreach ( $this->arrHeader as $strFieldname => $strTitle ) {
 
                 $strValue = $arrEntity[ $strFieldname ];
 
                 if ( $strValue == null ) $strValue = '';
 
                 $objSheet->setCellValueByColumnAndRow( $numIndex, $numRows, $strValue );
-
                 $numIndex++;
             }
 
@@ -245,7 +246,26 @@ class Export {
 
         foreach ( $arrFields as $strFieldname => $arrField ) {
 
+            if ( !empty( $this->arrColumns ) && !in_array( $strFieldname, $this->arrColumns ) ) {
+
+                continue;
+            }
+
             $this->arrHeader[ $strFieldname ] = $arrField['_dcFormat']['label'][0] ?: $strFieldname;
+        }
+
+
+        // set order
+        if ( !empty( $this->arrColumns ) ) {
+
+            $arrOrder = [];
+
+            foreach ( $this->arrColumns as $strFieldname ) {
+
+                $arrOrder[ $strFieldname ] = $this->arrHeader[ $strFieldname ];
+            }
+
+            $this->arrHeader = $arrOrder;
         }
     }
 

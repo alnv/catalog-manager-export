@@ -67,7 +67,7 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
         ]
     ],
     'palettes' => [
-        'default' => 'type,name,limit,offset,destination,match,order,includeHeader,parser',
+        'default' => 'type,name,limit,offset,destination,match,order,columns,includeHeader,parser',
     ],
     'fields' => [
         'id' => [
@@ -159,6 +159,17 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
                 'mainOptions' => [ 'CatalogManager\ExportBundle\DataContainer\Export', 'getSortableFields' ],
                 'dependedOptions' => [ 'CatalogManager\ExportBundle\DataContainer\Export', 'getOrderItems' ]
             ],
+            'exclude' => true,
+            'sql' => "blob NULL"
+        ],
+        'columns' => [
+            'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['columns'],
+            'inputType' => 'checkboxWizard',
+            'eval' => [
+                'multiple' => true,
+                'tl_class' => 'clr'
+            ],
+            'options_callback' => [ 'CatalogManager\ExportBundle\DataContainer\Export', 'getColumns' ],
             'exclude' => true,
             'sql' => "blob NULL"
         ],

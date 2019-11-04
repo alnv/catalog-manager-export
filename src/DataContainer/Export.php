@@ -26,6 +26,31 @@ class Export {
         return \Input::get( 'destination' );
     }
 
+    public function getColumns( \DataContainer $objDataContainer ) {
+
+        $arrReturn = [];
+
+        if ( !\Input::get( 'destination' ) ) {
+
+            return $arrReturn;
+        }
+
+        $objDatabase = \Database::getInstance();
+        $objCatalogFieldBuilder = new CatalogFieldBuilder();
+        $objCatalogFieldBuilder->initialize( \Input::get( 'destination' ) );
+        $arrFields = $objCatalogFieldBuilder->getCatalogFields( true, null );
+
+        foreach ( $arrFields as $strFieldname => $arrField ) {
+
+            if ( !$objDatabase->fieldExists( $strFieldname, \Input::get( 'destination' ) ) ) continue;
+
+            $arrReturn[ $strFieldname ] = is_array( $arrField['_dcFormat']['label'] ) && isset( $arrField['_dcFormat']['label'][0] ) ? $arrField['_dcFormat']['label'][0] : $strFieldname;
+        }
+
+
+        return $arrReturn;
+    }
+
 
     public function getFields( \DataContainer $objDataContainer = null, $strTable ) {
 
