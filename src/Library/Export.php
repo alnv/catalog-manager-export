@@ -223,9 +223,11 @@ class Export {
 
         while ( $objEntities->next() ) {
             $arrEntity = $objEntities->row();
-            if ( $this->blnParser ) {
-                if ( !Toolkit::isCoreTable( $this->strTable ) ) {
-                    $arrFields['dbIgnoreEmptyValues'] = true;
+            if ($this->blnParser) {
+                if (!Toolkit::isCoreTable( $this->strTable)) {
+                    foreach ($arrFields as $strFieldname => $arrField) {
+                        $arrFields[$strFieldname]['dbIgnoreEmptyValues'] = true;
+                    }
                     $arrEntity = Toolkit::parseCatalogValues($arrEntity, $arrFields, true);
                 }
                 else {
