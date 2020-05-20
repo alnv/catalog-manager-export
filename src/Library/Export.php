@@ -222,20 +222,14 @@ class Export {
         }
 
         while ( $objEntities->next() ) {
-
             $arrEntity = $objEntities->row();
-
             if ( $this->blnParser ) {
-
                 if ( !Toolkit::isCoreTable( $this->strTable ) ) {
-
-                    $arrEntity = Toolkit::parseCatalogValues( $arrEntity, $arrFields, true );
+                    $arrFields['dbIgnoreEmptyValues'] = true;
+                    $arrEntity = Toolkit::parseCatalogValues($arrEntity, $arrFields, true);
                 }
-
                 else {
-
                     foreach ( $arrEntity as $strFieldname => $varValue ) {
-
                         $arrEntity[ $strFieldname ] = $this->parseField( $varValue, $strFieldname, $arrEntity );
                     }
                 }
