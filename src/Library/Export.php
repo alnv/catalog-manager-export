@@ -217,7 +217,6 @@ class Export {
         $objEntities = $objSQLBuilder->execute( $arrQuery );
 
         if ( !$objEntities->numRows ) {
-
             return null;
         }
 
