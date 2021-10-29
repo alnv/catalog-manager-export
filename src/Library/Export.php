@@ -148,7 +148,16 @@ class Export {
         $objCatalogFieldBuilder->initialize( $this->strTable );
 
         $arrCatalog = $objCatalogFieldBuilder->getCatalog();
-        $arrFields = $objCatalogFieldBuilder->getCatalogFields( true, null );
+        $arrFields = [];
+
+        foreach ($objCatalogFieldBuilder->getCatalogFields(true, null) as $strField => $arrField) {
+            if ($arrField['type'] == 'upload') {
+                $arrField['type'] = 'text';
+                $arrField['_files'] = true;
+            }
+            $arrFields[$strField] = $arrField;
+        }
+
 
         $arrQuery['pagination'] = [];
         $arrQuery['where'] = $this->arrQuery;
@@ -216,26 +225,42 @@ class Export {
 
         $objEntities = $objSQLBuilder->execute( $arrQuery );
 
-        if ( !$objEntities->numRows ) {
+        if (!$objEntities->numRows) {
             return null;
         }
+        while ($objEntities->next()) {
+            $arrEntity = [];
+            foreach ($objEntities->row() as $strField => $strValue) {
+                if (!Toolkit::isCoreTable($this->strTable)) {
+                    if ($arrFields[$strField]['_files']) {
+                        $arrValues = \StringUtil::deserialize($strValue, true);
+                        if (is_array($arrValues) && !empty($arrValues)) {
+                            $arrFiles = [];
+                            foreach ($arrValues as $strUuid) {
+                                if ($objFile = \FilesModel::findByUuid($strUuid)) {
+                                    $arrFiles[] = $objFile->path;
+                                }
+                            }
+                            $strValue = implode(',', $arrFiles);
+                        }
+                    }
+                }
+                $arrEntity[$strField] = $strValue;
+            }
 
-        while ( $objEntities->next() ) {
-            $arrEntity = $objEntities->row();
             if ($this->blnParser) {
-                if (!Toolkit::isCoreTable( $this->strTable)) {
+                if (!Toolkit::isCoreTable($this->strTable)) {
                     foreach ($arrFields as $strFieldname => $arrField) {
                         $arrFields[$strFieldname]['dbIgnoreEmptyValues'] = true;
                     }
                     $arrEntity = Toolkit::parseCatalogValues($arrEntity, $arrFields, true);
                 }
                 else {
-                    foreach ( $arrEntity as $strFieldname => $varValue ) {
-                        $arrEntity[ $strFieldname ] = $this->parseField( $varValue, $strFieldname, $arrEntity );
+                    foreach ($arrEntity as $strFieldname => $varValue) {
+                        $arrEntity[$strFieldname] = $this->parseField($varValue, $strFieldname, $arrEntity);
                     }
                 }
             }
-
             $this->arrEntities[] = $arrEntity;
         }
 
