@@ -232,7 +232,7 @@ class Export {
             $arrEntity = [];
             foreach ($objEntities->row() as $strField => $strValue) {
                 if (!Toolkit::isCoreTable($this->strTable)) {
-                    if ($arrFields[$strField]['_files']) {
+                    if (isset($arrFields[$strField]['_files']) && $arrFields[$strField]['_files']) {
                         $arrValues = \StringUtil::deserialize($strValue, true);
                         if (is_array($arrValues) && !empty($arrValues)) {
                             $arrFiles = [];
