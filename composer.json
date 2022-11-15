@@ -32,7 +32,7 @@
     ]
   },
   "require": {
-    "php": "^7.0",
+    "php": "^7.4 || ^8.0",
     "contao/core-bundle": "^4.4",
     "phpoffice/phpspreadsheet": "^1.3"
   },
