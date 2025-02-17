@@ -53,15 +53,19 @@ class Hooks {
 
         foreach ( $arrTables as $strTable ) {
 
-            if ( $GLOBALS['TL_CATALOG_MANAGER']['CATALOG_EXTENSIONS'][ $strTable ]['useExport'] ) {
+            if ( isset($GLOBALS['TL_CATALOG_MANAGER']['CATALOG_EXTENSIONS'][ $strTable ]) ) {
+                
+                if ( $GLOBALS['TL_CATALOG_MANAGER']['CATALOG_EXTENSIONS'][ $strTable ]['useExport'] ) {
 
-                return true;
+                    return true;
+                }
+    
+                if ( !empty( $GLOBALS['TL_CATALOG_MANAGER']['CATALOG_EXTENSIONS'][ $strTable ]['cTables'] ) ) {
+    
+                    return $this->exportUsedInChildrenTables( $GLOBALS['TL_CATALOG_MANAGER']['CATALOG_EXTENSIONS'][ $strTable ]['cTables'] );
+                }
             }
-
-            if ( !empty( $GLOBALS['TL_CATALOG_MANAGER']['CATALOG_EXTENSIONS'][ $strTable ]['cTables'] ) ) {
-
-                return $this->exportUsedInChildrenTables( $GLOBALS['TL_CATALOG_MANAGER']['CATALOG_EXTENSIONS'][ $strTable ]['cTables'] );
-            }
+            
         }
 
         return false;
