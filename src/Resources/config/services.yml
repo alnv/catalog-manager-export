@@ -1,7 +1,7 @@
 services:
-    export.library.hooks:
-        class: CatalogManager\ExportBundle\Library\Hooks
-        public: true
-    export.datacontainer.export:
-            class: CatalogManager\ExportBundle\DataContainer\Export
-            public: true
+  export.library.hooks:
+    class: CatalogManager\ExportBundle\Library\Hooks
+    public: true
+  export.datacontainer.export:
+    class: CatalogManager\ExportBundle\DataContainer\Export
+    public: true

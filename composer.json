@@ -3,7 +3,12 @@
   "type": "contao-bundle",
   "license": "proprietary",
   "description": "Catalog Manager Excel Export.",
-  "keywords": [ "excel", "catalog", "manager", "export" ],
+  "keywords": [
+    "excel",
+    "catalog",
+    "manager",
+    "export"
+  ],
   "authors": [
     {
       "name": "Alexander Naumov",
@@ -18,29 +23,13 @@
   "autoload": {
     "psr-4": {
       "CatalogManager\\ExportBundle\\": "src/"
-    },
-    "classmap": [
-
-      "src/Resources/contao/"
-    ],
-    "exclude-from-classmap": [
-
-      "src/Resources/contao/config/",
-      "src/Resources/contao/dca/",
-      "src/Resources/contao/languages/",
-      "src/Resources/contao/templates/"
-    ]
+    }
   },
   "require": {
-    "php": "^7.4 || ^8.0",
-    "contao/core-bundle": "^4.4",
-    "phpoffice/phpspreadsheet": "^1.3"
-  },
-  "config": {
-    "preferred-install": "dist"
-  },
-  "replace": {
-    "contao-legacy/catalog-manager-export": "self.version"
+    "phpoffice/phpspreadsheet": "^2.3",
+    "php": ">=8.0",
+    "contao/core-bundle": "~5.3",
+    "alnv/catalog-manager": "^2.0"
   },
   "extra": {
     "contao": {

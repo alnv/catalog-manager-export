@@ -2,49 +2,59 @@
 
 namespace CatalogManager\ExportBundle\Library;
 
-use CatalogManager\CatalogFieldBuilder as CatalogFieldBuilder;
-use CatalogManager\SQLQueryBuilder as SQLQueryBuilder;
-use CatalogManager\Toolkit as Toolkit;
-
+use Alnv\CatalogManagerBundle\CatalogFieldBuilder;
+use Alnv\CatalogManagerBundle\SQLQueryBuilder;
+use Alnv\CatalogManagerBundle\Toolkit;
+use Contao\Date;
+use Contao\FilesModel;
+use Contao\Widget;
+use Contao\StringUtil;
+use Contao\BackendUser;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\Writer\Xls;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
+use PhpOffice\PhpSpreadsheet\Writer\Xls;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
+class Export
+{
 
-class Export {
+    protected string $strName;
 
+    protected string $strType;
 
-    protected $strName;
-    protected $strType;
-    protected $strTable;
-    protected $numLimit = 0;
-    protected $numOffset = 0;
-    protected $arrQuery = [];
-    protected $arrOrder = [];
-    protected $arrHeader = [];
-    protected $arrColumns = [];
-    protected $arrEntities = [];
-    protected $blnParser = false;
-    protected $blnIncludeHeader = false;
+    protected string $strTable;
 
+    protected int $numLimit = 0;
 
-    public function __construct( $arrSettings ) {
+    protected int $numOffset = 0;
 
-        $arrMatch = \StringUtil::deserialize( $arrSettings['match'], true );
-        $arrOrders = \StringUtil::deserialize( $arrSettings['order'], true );
+    protected array $arrQuery = [];
 
-        if ( isset( $arrMatch['query'] ) ) {
+    protected array $arrOrder = [];
 
-            $this->arrQuery = Toolkit::parseQueries( $arrMatch['query'] );
+    protected array $arrHeader = [];
+
+    protected array $arrColumns = [];
+
+    protected array $arrEntities = [];
+
+    protected bool $blnParser = false;
+
+    protected bool $blnIncludeHeader = false;
+
+    public function __construct($arrSettings)
+    {
+
+        $arrMatch = StringUtil::deserialize($arrSettings['match'], true);
+        $arrOrders = StringUtil::deserialize($arrSettings['order'], true);
+
+        if (isset($arrMatch['query'])) {
+            $this->arrQuery = Toolkit::parseQueries($arrMatch['query']);
         }
 
-        if ( is_array($arrOrders ) && !empty( $arrOrders ) ) {
-
-            foreach ( $arrOrders as $arrOrder ) {
-
+        if (is_array($arrOrders) && !empty($arrOrders)) {
+            foreach ($arrOrders as $arrOrder) {
                 $this->arrOrder[] = [
-
                     'field' => $arrOrder['key'],
                     'order' => $arrOrder['value']
                 ];
@@ -56,96 +66,94 @@ class Export {
         $this->numOffset = $arrSettings['offset'];
         $this->strTable = $arrSettings['destination'];
         $this->strType = $arrSettings['type'] ?: 'xlsx';
-        $this->blnParser = $arrSettings['parser'] ? true : false;
-        $this->blnIncludeHeader = $arrSettings['includeHeader'] ? true : false;
-        $this->arrColumns = \StringUtil::deserialize( $arrSettings['columns'], true );
+        $this->blnParser = (bool)$arrSettings['parser'];
+        $this->blnIncludeHeader = (bool)$arrSettings['includeHeader'];
+        $this->arrColumns = StringUtil::deserialize($arrSettings['columns'], true);
 
         $this->getEntities();
     }
 
-
-    public function initialize() {
+    public function initialize(): void
+    {
 
         $numRows = 1;
-        $objUser = \BackendUser::getInstance();
+        $objUser = BackendUser::getInstance();
         $objSpreadsheet = new Spreadsheet();
-        $strFilename =  \StringUtil::generateAlias( $this->strName ) . '.' . $this->strType;
+        $strFilename = StringUtil::generateAlias($this->strName) . '.' . $this->strType;
 
         $objSpreadsheet->getProperties()
-            ->setTitle( $this->strName )
-            ->setCreator( $objUser->username )
-            ->setLastModifiedBy( $objUser->username );
+            ->setTitle($this->strName)
+            ->setCreator($objUser->username)
+            ->setLastModifiedBy($objUser->username);
 
         $objSheet = $objSpreadsheet->getActiveSheet();
 
-        if ( $this->blnIncludeHeader ) {
-
+        if ($this->blnIncludeHeader) {
             $numIndex = 1;
 
-            foreach ( $this->arrHeader as $strTitle ) {
-
-                $objSheet->setCellValueByColumnAndRow( $numIndex, $numRows, $strTitle );
+            foreach ($this->arrHeader as $strTitle) {
+                $objSheet->setCellValue($numIndex, $numRows, $strTitle);
                 $numIndex++;
             }
 
             $numRows++;
         }
 
-        foreach ( $this->arrEntities as $arrEntity ) {
+        foreach ($this->arrEntities as $arrEntity) {
 
             $numIndex = 1;
 
-            foreach ( $this->arrHeader as $strFieldname => $strTitle ) {
+            foreach ($this->arrHeader as $strFieldname => $strTitle) {
 
-                $strValue = $arrEntity[ $strFieldname ];
+                $strValue = $arrEntity[$strFieldname];
 
-                if ( $strValue == null ) $strValue = '';
+                if ($strValue == null) $strValue = '';
 
-                $objSheet->setCellValueByColumnAndRow( $numIndex, $numRows, $strValue );
+                $objSheet->setCellValue($numIndex, $numRows, $strValue);
                 $numIndex++;
             }
 
             $numRows++;
         }
 
-        header('Content-Disposition: attachment;filename="' . $strFilename . '"');
-        header('Cache-Control: max-age=0');
+        \header('Content-Disposition: attachment;filename="' . $strFilename . '"');
+        \header('Cache-Control: max-age=0');
 
-        switch ( $this->strType ) {
+        switch ($this->strType) {
 
             case 'xls':
 
-                header('Content-Type: application/vnd.ms-excel');
-                $objXls = new Xls( $objSpreadsheet );
-                $objXls->save( 'php://output' );
+                \header('Content-Type: application/vnd.ms-excel');
+                $objXls = new Xls($objSpreadsheet);
+                $objXls->save('php://output');
 
                 exit;
 
             case 'xlsx':
 
-                header('Content-Type: application/vnd.ms-excel');
-                $objXls = new Xlsx( $objSpreadsheet );
-                $objXls->save( 'php://output' );
+                \header('Content-Type: application/vnd.ms-excel');
+                $objXls = new Xlsx($objSpreadsheet);
+                $objXls->save('php://output');
 
                 exit;
 
             case 'csv':
 
-                header('Content-Type: text/csv');
-                $objXls = new Csv( $objSpreadsheet );
-                $objXls->save( 'php://output' );
+                \header('Content-Type: text/csv');
+                $objXls = new Csv($objSpreadsheet);
+                $objXls->save('php://output');
 
                 exit;
         }
     }
 
-
-    protected function getEntities() {
+    protected function getEntities()
+    {
 
         $arrQuery = [];
         $objSQLBuilder = new SQLQueryBuilder();
         $objCatalogFieldBuilder = new CatalogFieldBuilder();
-        $objCatalogFieldBuilder->initialize( $this->strTable );
+        $objCatalogFieldBuilder->initialize($this->strTable);
 
         $arrCatalog = $objCatalogFieldBuilder->getCatalog();
         $arrFields = [];
@@ -158,31 +166,27 @@ class Export {
             $arrFields[$strField] = $arrField;
         }
 
-
         $arrQuery['pagination'] = [];
         $arrQuery['where'] = $this->arrQuery;
         $arrQuery['table'] = $this->strTable;
         $arrQuery['orderBy'] = $this->arrOrder;
 
-        if ( in_array( 'invisible', $arrCatalog['operations'] ) ) {
+        if (in_array('invisible', $arrCatalog['operations'])) {
 
-            $dteTime = \Date::floorToMinute();
+            $dteTime = Date::floorToMinute();
 
             $arrQuery['where'][] = [
-
                 'field' => 'tstamp',
                 'operator' => 'gt',
                 'value' => 0
             ];
 
             $arrQuery['where'][] = [
-
                 [
                     'value' => '',
                     'field' => 'start',
                     'operator' => 'equal'
                 ],
-
                 [
                     'field' => 'start',
                     'operator' => 'lte',
@@ -191,13 +195,11 @@ class Export {
             ];
 
             $arrQuery['where'][] = [
-
                 [
                     'value' => '',
                     'field' => 'stop',
                     'operator' => 'equal'
                 ],
-
                 [
                     'field' => 'stop',
                     'operator' => 'gt',
@@ -206,24 +208,23 @@ class Export {
             ];
 
             $arrQuery['where'][] = [
-
                 'field' => 'invisible',
                 'operator' => 'not',
                 'value' => '1'
             ];
         }
 
-        if ( $this->numLimit ) {
+        if ($this->numLimit) {
 
             $arrQuery['pagination']['limit'] = $this->numLimit;
         }
 
-        if ( $this->numOffset ) {
+        if ($this->numOffset) {
 
             $arrQuery['pagination']['offset'] = $this->numOffset;
         }
 
-        $objEntities = $objSQLBuilder->execute( $arrQuery );
+        $objEntities = $objSQLBuilder->execute($arrQuery);
 
         if (!$objEntities->numRows) {
             return null;
@@ -233,11 +234,11 @@ class Export {
             foreach ($objEntities->row() as $strField => $strValue) {
                 if (!Toolkit::isCoreTable($this->strTable)) {
                     if (isset($arrFields[$strField]['_files']) && $arrFields[$strField]['_files']) {
-                        $arrValues = \StringUtil::deserialize($strValue, true);
+                        $arrValues = StringUtil::deserialize($strValue, true);
                         if (is_array($arrValues) && !empty($arrValues)) {
                             $arrFiles = [];
                             foreach ($arrValues as $strUuid) {
-                                if ($objFile = \FilesModel::findByUuid($strUuid)) {
+                                if ($objFile = FilesModel::findByUuid($strUuid)) {
                                     $arrFiles[] = $objFile->path;
                                 }
                             }
@@ -254,8 +255,7 @@ class Export {
                         $arrFields[$strFieldname]['dbIgnoreEmptyValues'] = true;
                     }
                     $arrEntity = Toolkit::parseCatalogValues($arrEntity, $arrFields, true);
-                }
-                else {
+                } else {
                     foreach ($arrEntity as $strFieldname => $varValue) {
                         $arrEntity[$strFieldname] = $this->parseField($varValue, $strFieldname, $arrEntity);
                     }
@@ -264,83 +264,71 @@ class Export {
             $this->arrEntities[] = $arrEntity;
         }
 
-        foreach ( $arrFields as $strFieldname => $arrField ) {
-
-            if ( !empty( $this->arrColumns ) && !in_array( $strFieldname, $this->arrColumns ) ) {
-
+        foreach ($arrFields as $strFieldname => $arrField) {
+            if (!empty($this->arrColumns) && !in_array($strFieldname, $this->arrColumns)) {
                 continue;
             }
 
-            $this->arrHeader[ $strFieldname ] = $arrField['_dcFormat']['label'][0] ?: $strFieldname;
+            $this->arrHeader[$strFieldname] = ($arrField['_dcFormat']['label'][0] ?? '') ?: $strFieldname;
         }
 
-
         // set order
-        if ( !empty( $this->arrColumns ) ) {
+        if (!empty($this->arrColumns)) {
 
             $arrOrder = [];
 
-            foreach ( $this->arrColumns as $strFieldname ) {
-
-                $arrOrder[ $strFieldname ] = $this->arrHeader[ $strFieldname ];
+            foreach ($this->arrColumns as $strFieldname) {
+                $arrOrder[$strFieldname] = $this->arrHeader[$strFieldname];
             }
 
             $this->arrHeader = $arrOrder;
         }
     }
 
+    protected function parseField($varValue, $strField, $arrValues)
+    {
 
-    protected function parseField( $varValue, $strField, $arrValues ) {
-
-        if ( $varValue === '' || $varValue === null ) {
-
+        if ($varValue === '' || $varValue === null) {
             return $varValue;
         }
 
-        $arrField = \Widget::getAttributesFromDca( $GLOBALS['TL_DCA'][ $this->strTable ]['fields'][ $strField ], $strField, $varValue, $strField, $this->strTable );
+        $arrField = Widget::getAttributesFromDca($GLOBALS['TL_DCA'][$this->strTable]['fields'][$strField], $strField, $varValue, $strField, $this->strTable);
 
-        if ( !isset( $arrField['type'] ) ) {
-
+        if (!isset($arrField['type'])) {
             return $varValue;
         }
 
-        switch ( $arrField['type'] ) {
+        switch ($arrField['type']) {
 
             case 'text':
-
                 return $arrField['value'];
-
-                break;
 
             case 'checkbox':
             case 'select':
             case 'radio':
 
-                $varValue = !is_array( $arrField['value'] ) ? [ $arrField['value'] ] : $arrField['value'];
-                $varValue = $this->getSelectedOptions( $varValue, $arrField['options'] );
+                $varValue = !is_array($arrField['value']) ? [$arrField['value']] : $arrField['value'];
+                $varValue = $this->getSelectedOptions($varValue, $arrField['options']);
 
-                return is_array( $varValue ) ? implode( ', ', array_map(function ($arrValue){return $arrValue['label'];},$varValue) ) : $varValue;
-
-                break;
+                return is_array($varValue) ? implode(', ', array_map(function ($arrValue) {
+                    return $arrValue['label'];
+                }, $varValue)) : $varValue;
         }
 
         return $arrField['value'];
     }
 
-
-    protected function getSelectedOptions( $arrValues, $arrOptions ) {
+    protected function getSelectedOptions($arrValues, $arrOptions): array
+    {
 
         $arrReturn = [];
 
-        if ( !is_array( $arrOptions ) || !is_array( $arrValues ) ) {
-
+        if (!is_array($arrOptions) || !is_array($arrValues)) {
             return [];
         }
 
-        foreach ( $arrOptions as $arrValue ) {
-
-            if ( in_array( $arrValue['value'], $arrValues ) ) {
-
+        foreach ($arrOptions as $arrValue) {
+            if (in_array($arrValue['value'], $arrValues)) {
                 $arrReturn[] = $arrValue;
             }
         }

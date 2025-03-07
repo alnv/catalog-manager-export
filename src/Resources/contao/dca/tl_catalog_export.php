@@ -1,12 +1,16 @@
 <?php
 
+use Contao\DC_Table;
+use Contao\Input;
+use CatalogManager\ExportBundle\DataContainer\Export;
+
 $GLOBALS['TL_DCA']['tl_catalog_export'] = [
     'config' => [
-        'dataContainer' => 'Table',
+        'dataContainer' => DC_Table::class,
         'enableVersioning' => true,
         'onload_callback' => [
-            [ 'export.datacontainer.export', 'saveTable' ],
-            [ 'export.datacontainer.export', 'callExport' ]
+            ['export.datacontainer.export', 'saveTable'],
+            ['export.datacontainer.export', 'callExport']
         ],
         'sql' => [
             'keys' => [
@@ -21,33 +25,32 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
             'flag' => 1,
             'fields' => ['name'],
             'panelLayout' => 'filter;sort,search,limit',
-            'filter' => [ [ 'destination=?', \Input::get('destination') ] ]
+            'filter' => [['destination=?', Input::get('destination')]]
         ],
         'label' => [
             'showColumns' => true,
-            'fields' => [ 'name', 'type' ]
+            'fields' => ['name', 'type']
         ],
         'operations' => [
             'edit' => [
-                'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['edit'],
                 'href' => 'act=edit',
-                'icon' => 'header.gif'
+                'icon' => 'header.svg'
             ],
             'delete' => [
                 'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['delete'],
                 'href' => 'act=delete',
-                'icon' => 'delete.gif',
-                'attributes' => 'onclick="if(!confirm(\'' . $GLOBALS['TL_LANG']['MSC']['deleteConfirm'] . '\'))return false;Backend.getScrollOffset()"'
+                'icon' => 'delete.svg',
+                'attributes' => 'onclick="if(!confirm(\'' . ($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? '') . '\'))return false;Backend.getScrollOffset()"'
             ],
             'show' => [
                 'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['show'],
                 'href' => 'act=show',
-                'icon' => 'show.gif'
+                'icon' => 'show.svg'
             ],
             'export' => [
                 'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['export'],
-                'href' => 'call=export&pid=' . \Input::get('id'),
-                'icon' => 'tablewizard.gif'
+                'href' => 'call=export&pid=' . Input::get('id'),
+                'icon' => 'tablewizard.svg'
             ]
         ],
         'global_operations' => [
@@ -62,7 +65,7 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
                 'attributes' => '',
                 'href' => '',
                 'label' => &$GLOBALS['TL_LANG']['MSC']['backBT'],
-                'button_callback' => ['CatalogManager\ExportBundle\DataContainer\Export', 'generateBackLink'],
+                'button_callback' => [Export::class, 'generateBackLink'],
             ]
         ]
     ],
@@ -77,7 +80,6 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
             'sql' => "int(10) unsigned NOT NULL default '0'"
         ],
         'name' => [
-            'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['name'],
             'inputType' => 'text',
             'eval' => [
                 'mandatory' => true,
@@ -89,7 +91,6 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
             'sql' => "varchar(128) NOT NULL default ''"
         ],
         'type' => [
-            'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['type'],
             'inputType' => 'select',
             'eval' => [
                 'chosen' => true,
@@ -99,14 +100,13 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
                 'blankOptionLabel' => '-',
                 'includeBlankOption' => true,
             ],
-            'options_callback' => [ 'export.datacontainer.export', 'getTypes' ],
+            'options_callback' => ['export.datacontainer.export', 'getTypes'],
             'reference' => &$GLOBALS['TL_LANG']['tl_catalog_export']['reference']['type'],
             'filter' => true,
             'exclude' => true,
             'sql' => "varchar(12) NOT NULL default ''"
         ],
         'includeHeader' => [
-            'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['includeHeader'],
             'inputType' => 'checkbox',
             'eval' => [
                 'tl_class' => 'clr',
@@ -115,7 +115,6 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
             'sql' => "char(1) NOT NULL default ''"
         ],
         'parser' => [
-            'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['parser'],
             'inputType' => 'checkbox',
             'eval' => [
                 'tl_class' => 'clr',
@@ -124,7 +123,6 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
             'sql' => "char(1) NOT NULL default ''"
         ],
         'destination' => [
-            'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['destination'],
             'inputType' => 'text',
             'eval' => [
                 'readonly' => true,
@@ -136,19 +134,17 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
             'sql' => "varchar(128) NOT NULL default ''"
         ],
         'match' => [
-            'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['match'],
             'inputType' => 'catalogTaxonomyWizard',
             'eval' => [
                 'tl_class' => 'clr',
                 'dcTable' => 'tl_catalog_export',
-                'taxonomyTable' => [ 'CatalogManager\ExportBundle\DataContainer\Export', 'getTable' ],
-                'taxonomyEntities' => [ 'CatalogManager\ExportBundle\DataContainer\Export', 'getFields' ]
+                'taxonomyTable' => [Export::class, 'getTable'],
+                'taxonomyEntities' => [Export::class, 'getFields']
             ],
             'exclude' => true,
             'sql' => "blob NULL"
         ],
         'order' => [
-            'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['order'],
             'inputType' => 'catalogDuplexSelectWizard',
             'eval' => [
                 'chosen' => true,
@@ -156,25 +152,23 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
                 'includeBlankOption' => true,
                 'mainLabel' => 'catalogManagerFields',
                 'dependedLabel' => 'catalogManagerOrder',
-                'mainOptions' => [ 'CatalogManager\ExportBundle\DataContainer\Export', 'getSortableFields' ],
-                'dependedOptions' => [ 'CatalogManager\ExportBundle\DataContainer\Export', 'getOrderItems' ]
+                'mainOptions' => [Export::class, 'getSortableFields'],
+                'dependedOptions' => [Export::class, 'getOrderItems']
             ],
             'exclude' => true,
             'sql' => "blob NULL"
         ],
         'columns' => [
-            'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['columns'],
             'inputType' => 'checkboxWizard',
             'eval' => [
                 'multiple' => true,
                 'tl_class' => 'clr'
             ],
-            'options_callback' => [ 'CatalogManager\ExportBundle\DataContainer\Export', 'getColumns' ],
+            'options_callback' => [Export::class, 'getColumns'],
             'exclude' => true,
             'sql' => "blob NULL"
         ],
         'limit' => [
-            'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['limit'],
             'inputType' => 'text',
             'default' => 0,
             'eval' => [
@@ -186,7 +180,6 @@ $GLOBALS['TL_DCA']['tl_catalog_export'] = [
             'sql' => "smallint(5) unsigned NOT NULL default '0'"
         ],
         'offset' => [
-            'label' => &$GLOBALS['TL_LANG']['tl_catalog_export']['offset'],
             'inputType' => 'text',
             'default' => 0,
             'eval' => [
