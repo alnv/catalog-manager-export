@@ -5,11 +5,11 @@ namespace CatalogManager\ExportBundle\Library;
 use Alnv\CatalogManagerBundle\CatalogFieldBuilder;
 use Alnv\CatalogManagerBundle\SQLQueryBuilder;
 use Alnv\CatalogManagerBundle\Toolkit;
+use Contao\BackendUser;
 use Contao\Date;
 use Contao\FilesModel;
-use Contao\Widget;
 use Contao\StringUtil;
-use Contao\BackendUser;
+use Contao\Widget;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Xls;
@@ -19,27 +19,16 @@ class Export
 {
 
     protected string $strName;
-
     protected string $strType;
-
     protected string $strTable;
-
     protected int $numLimit = 0;
-
     protected int $numOffset = 0;
-
     protected array $arrQuery = [];
-
     protected array $arrOrder = [];
-
     protected array $arrHeader = [];
-
     protected array $arrColumns = [];
-
     protected array $arrEntities = [];
-
     protected bool $blnParser = false;
-
     protected bool $blnIncludeHeader = false;
 
     public function __construct($arrSettings)
@@ -92,7 +81,7 @@ class Export
             $numIndex = 1;
 
             foreach ($this->arrHeader as $strTitle) {
-                $objSheet->setCellValue($numIndex, $numRows, $strTitle);
+                $objSheet->setCellValue([$numIndex, $numRows], $strTitle);
                 $numIndex++;
             }
 
@@ -109,7 +98,7 @@ class Export
 
                 if ($strValue == null) $strValue = '';
 
-                $objSheet->setCellValue($numIndex, $numRows, $strValue);
+                $objSheet->setCellValue([$numIndex, $numRows], $strValue);
                 $numIndex++;
             }
 
